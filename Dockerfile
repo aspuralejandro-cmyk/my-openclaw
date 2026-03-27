@@ -1,18 +1,17 @@
-# Usamos una imagen con herramientas de compilación
+# Usamos una imagen de Node completa
 FROM node:22-bullseye
 
-# Instalamos dependencias del sistema necesarias para compilar módulos de Node
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+# Crear carpeta de trabajo
+WORKDIR /app
 
-# Instalamos OpenClaw de forma global
-RUN npm install -g @openclaw/gateway --unsafe-perm
+# Instalar dependencias del sistema por si acaso
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-# Exponemos el puerto
+# Truco de Backend: Instalamos localmente y forzamos el inicio
+RUN npm install @openclaw/gateway
+
+# Exponemos el puerto de OpenClaw
 EXPOSE 18789
 
-# Comando para iniciar
-CMD ["openclaw", "start", "--foreground"]
+# Comando para iniciar desde la ruta local de node_modules
+CMD ["./node_modules/.bin/openclaw", "start", "--foreground"]
